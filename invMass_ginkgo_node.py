@@ -14,6 +14,8 @@ from ginkgo.pyro_simulator import PyroSimulator
 # from ginkgo import likelihood_invM as likelihood
 # from ginkgo import auxFunctions
 from node import *
+from likelihood_node import *
+from pptree import *
 
 
 class Simulator(PyroSimulator):
@@ -29,22 +31,37 @@ class Simulator(PyroSimulator):
 
         self.jet_p = jet_p # 4d vector for root node
     def bfs(self, root):
-        q = collections.deque([root])
         nodeCount = 0
+        q = collections.deque([[nodeCount, root]])
+        pRootNode = Node(str(0))
+        printQ = collections.deque([pRootNode])
         while q:
-            currNode = q.popleft()
-            print("Node", nodeCount)
+            nodeID, currNode = q.popleft()
+            currPrintNode = printQ.popleft()
+
+            print("Node", nodeID)
             print(" Vec4:", currNode.vec4)
             print(" Decay Rate:", currNode.decay_rate)
             print(" Mass Squared:", currNode.delta)
+            print(" Log Likelihood:", currNode.logLH)
+            print(" DIJ List:", *currNode.dijList[:5])
             print()
-            nodeCount += 1
-            if currNode.left:
-                q.append(currNode.left)
-            if currNode.right:
-                q.append(currNode.right)
 
-        return
+            if currNode.left:
+                nodeCount += 1
+                q.append([nodeCount, currNode.left])
+
+                printLeftNode = Node(str(nodeCount), currPrintNode)
+                printQ.append(printLeftNode)
+
+            if currNode.right:
+                nodeCount += 1
+                q.append([nodeCount, currNode.right])
+
+                printRightNode = Node(str(nodeCount), currPrintNode)
+                printQ.append(printRightNode)
+
+        return pRootNode
     # forward function gets called automatically when instance of simulator is created
     def forward(self, inputs):
 
@@ -75,9 +92,11 @@ class Simulator(PyroSimulator):
                 cut_off=self.pt_cut,
                 rate=decay_rate,
             )
+            currNode = enrich_jet_logLH(rootNode = currNode, delta_min = self.pt_cut, dij = True)
             root_list.append(currNode)
+
         for i in root_list:
-            self.bfs(i)
+            print_tree(self.bfs(i))
         
         # original output
         
@@ -215,6 +234,8 @@ def _traverse(root, delta_P=None, cut_off=None, rate=None):
         Recursive function to make the jet tree.
         """
         nonlocal CUT_OFF, is_root
+        if currNode.delta < CUT_OFF:
+            return
 
         root = currNode.vec4 # 4d vector representing initial node
 
@@ -237,16 +258,15 @@ def _traverse(root, delta_P=None, cut_off=None, rate=None):
         node_draw_decay_L_rand = draw_decay_R if flip == True else draw_decay_L
         node_draw_decay_R_rand = draw_decay_L if flip == True else draw_decay_R
         
-        # checking if we should stop
-        if node_tL_rand > CUT_OFF:
-            leftNode = Node(node_pL_mu_rand, None, None, node_draw_decay_L_rand, node_tL_rand)
-            currNode.left = leftNode
-            _traverse_rec(leftNode)
-        if node_tR_rand > CUT_OFF:
-            rightNode = Node(node_pR_mu_rand, None, None, node_draw_decay_R_rand, node_tR_rand)
-            currNode.right = rightNode
-            _traverse_rec(rightNode)
-    rootNode = Node(vec4 = root, left = None, right = None, decay_rate = 1, delta = delta_P)
+        leftNode = jetNode(node_pL_mu_rand, None, None, node_draw_decay_L_rand, node_tL_rand)
+        currNode.left = leftNode
+        _traverse_rec(leftNode)
+
+        rightNode = jetNode(node_pR_mu_rand, None, None, node_draw_decay_R_rand, node_tR_rand)
+        currNode.right = rightNode
+        _traverse_rec(rightNode)
+        
+    rootNode = jetNode(vec4 = root, left = None, right = None, decay_rate = 1, delta = delta_P)
     is_root = True
     # Start from the root = jet 4-vector
     _traverse_rec(rootNode)

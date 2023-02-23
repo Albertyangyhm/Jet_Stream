@@ -17,7 +17,6 @@ from node import *
 from likelihood_node import *
 from pptree import *
 
-
 class Simulator(PyroSimulator):
     def __init__(self, jet_p=None, pt_cut=1.0, M_hard=None, Delta_0=None, num_samples=1, minLeaves =2 , maxLeaves=np.inf, maxNTry=20000 ):
         super(Simulator, self).__init__()
@@ -30,6 +29,7 @@ class Simulator(PyroSimulator):
         self.maxNTry = maxNTry
 
         self.jet_p = jet_p # 4d vector for root node
+        self.ret_root_list = []
     def bfs(self, root):
         nodeCount = 0
         q = collections.deque([[nodeCount, root]])
@@ -46,6 +46,8 @@ class Simulator(PyroSimulator):
             print(" Log Likelihood:", currNode.logLH)
             print(" DIJ List:", *currNode.dijList[:5])
             print()
+            
+            self.ret_root_list.append(currNode)
 
             if currNode.left:
                 nodeCount += 1
@@ -79,9 +81,8 @@ class Simulator(PyroSimulator):
         globals()["root_dist"] = pyro.distributions.Exponential(root_rate)
         globals()["decay_dist"] = pyro.distributions.Exponential(decay_rate)
 
-        jet_list = []
-        root_list = []
         i = 0
+        root_list = []
         # while len(root_list) < self.num_samples and i < self.maxNTry:
         while len(root_list) < self.maxNTry:
 
@@ -97,51 +98,7 @@ class Simulator(PyroSimulator):
 
         for i in root_list:
             print_tree(self.bfs(i))
-        
-        # original output
-        
-        #     jet = dict()
-        #     jet["root_id"] = 0
-        #     # -1 means that it is an unknown dimension. So however long the tree is
-        #     jet["tree"] = np.asarray(tree).reshape(-1, 2)  # Labels for the nodes in the tree
-        #     jet["content"] = np.array([np.asarray(c) for c in content])
-        #     jet["LambdaRoot"] = root_rate
-        #     jet["Lambda"] = decay_rate
-        #     jet["Delta_0"] = self.Delta_0
-        #     jet["pt_cut"] = self.pt_cut
-        #     jet["algorithm"] = "truth"
-        #     jet["deltas"] = np.asarray(deltas)
-        #     jet["draws"] = np.asarray(draws)
-        #     jet["leaves"] = np.array([np.asarray(c) for c in leaves])
-
-        #     if self.minLeaves <= len(jet["leaves"]) < self.maxLeaves:
-        #         # setting the mass of the root of the jet
-        #         if self.M_hard:
-        #             jet["M_Hard"] = float(self.M_hard)
-
-        #         # still calling online lib
-        #         likelihood.enrich_jet_logLH(jet, dij=False)
-        #         # still calling online lib
-        #         ConstPhi, PhiDelta, PhiDeltaListRel = auxFunctions.traversePhi(jet, jet["root_id"], [], [],[])
-
-        #         jet["ConstPhi"] = ConstPhi
-        #         jet["PhiDelta"] = PhiDelta
-        #         jet["PhiDeltaRel"] = PhiDeltaListRel
-
-
-
-        #         jet_list.append(jet)
-
-        #         if len(jet_list) % 1000 == 0:
-        #             print("Generated ", len(jet_list), "jets with ", self.minLeaves, "<=number of leaves<", self.maxLeaves)
-
-
-        #     i += 1
-        #     if i % 1000==0:
-        #         print("Generated ", i, " jets")
-
-
-        # return jet_list
+        return self.ret_root_list
 
     # export
     @staticmethod
@@ -177,7 +134,6 @@ def _traverse(root, delta_P=None, cut_off=None, rate=None):
     draws: r value  associated to content[i]
     """
     CUT_OFF = cut_off
-
     def _calc(root, delta_P):
         nonlocal is_root
 
@@ -250,7 +206,8 @@ def _traverse(root, delta_P=None, cut_off=None, rate=None):
 
         # Shuffle L and R randomly. This will contribute a factor of 1/2 to the likelihood
         flip = pyro.sample("Bernoulli", Bernoulli_dist)
-
+        flip = flip > 0.5
+        # print(flip)
         node_tL_rand = tR if flip == True else tL
         node_tR_rand = tL if flip == True else tR
         node_pL_mu_rand = node_pR_mu if flip == True else node_pL_mu
@@ -270,7 +227,6 @@ def _traverse(root, delta_P=None, cut_off=None, rate=None):
     is_root = True
     # Start from the root = jet 4-vector
     _traverse_rec(rootNode)
-
     return rootNode
 
 ### Auxiliary functions:

@@ -1,0 +1,88 @@
+Node 0
+ Vec4: [6.40312424 2.30940108 2.30940108 2.30940108]
+ Decay Rate: 1
+ Mass Squared: tensor(25.)
+ Log Likelihood: -7.32357312152647
+ DIJ List: -7.32357312152647 0.15499100035323965 1.7137167166230522 0.2926725199675258
+
+Node 1
+ Vec4: [ 1.3826386   0.26749655 -0.31500463  0.51819232]
+ Decay Rate: tensor(0.5140)
+ Mass Squared: tensor(1.4724)
+ Log Likelihood: -2.6835152800465307
+ DIJ List: -2.6835152800465307 14.778078084759152 3.120008416688696 0.46093946026206967
+
+Node 2
+ Vec4: [5.02048548 2.04190447 2.62440565 1.79120871]
+ Decay Rate: tensor(0.4376)
+ Mass Squared: tensor(10.9400)
+ Log Likelihood: -5.961950808324882
+ DIJ List: -5.961950808324882 0.2538720316042374 1.2599029427377513 1.858069559910374
+
+Node 3
+ Vec4: [0.63228532 0.35983848 0.13510321 0.11505829]
+ Decay Rate: tensor(0.1622)
+ Mass Squared: tensor(0.2388)
+ Log Likelihood: 0
+ DIJ List:
+
+Node 4
+ Vec4: [ 0.75035329 -0.09234192 -0.45010784  0.40313402]
+ Decay Rate: tensor(0.3606)
+ Mass Squared: tensor(0.1894)
+ Log Likelihood: 0
+ DIJ List:
+
+Node 5
+ Vec4: [ 2.70852314  1.00866852  1.98628697 -0.08159658]
+ Decay Rate: tensor(0.3234)
+ Mass Squared: tensor(2.3667)
+ Log Likelihood: -3.7504841382885656
+ DIJ List: -3.7504841382885656 0.011313299629488382 0.048345188195974935 0.0012776733801916134
+
+Node 6
+ Vec4: [2.31196234 1.03323595 0.63811868 1.87280528]
+ Decay Rate: tensor(0.0332)
+ Mass Squared: tensor(0.3630)
+ Log Likelihood: 0
+ DIJ List:
+
+Node 7
+ Vec4: [ 2.52723391  0.95798092  1.83182376 -0.05328229]
+ Decay Rate: tensor(0.8919)
+ Mass Squared: tensor(2.1108)
+ Log Likelihood: -2.9589389260197363
+ DIJ List: -2.9589389260197363 0.42992451541369187 1.0779898504207728 0.3830586561754238
+
+Node 8
+ Vec4: [ 0.18128932  0.05068763  0.15446328 -0.02831429]
+ Decay Rate: tensor(0.7699)
+ Mass Squared: tensor(0.0056)
+ Log Likelihood: 0
+ DIJ List:
+
+Node 9
+ Vec4: [ 1.78547201  0.98913453  1.2365299  -0.39578737]
+ Decay Rate: tensor(0.2482)
+ Mass Squared: tensor(0.5239)
+ Log Likelihood: 0
+ DIJ List:
+
+Node 10
+ Vec4: [ 0.7417619  -0.0311536   0.59529386  0.34250507]
+ Decay Rate: tensor(0.1459)
+ Mass Squared: tensor(0.0776)
+ Log Likelihood: 0
+ DIJ List:
+
+    ┌3
+  ┌1┤
+  │ └4
+ 0┤
+  │ ┌6
+  └2┤
+    │ ┌8
+    └5┤
+      │ ┌9
+      └7┤
+        └10

@@ -24,15 +24,20 @@ def llhTF(pL, pR, t_cut, lam):
     # This way the likelihood integrates to 1 for 0<t<t_p.
     # All leaves should have t=0, this is a convention we are
     # taking (instead of keeping their value for t given that
-    # it is below the threshold t_cut)
+    # it is belofw the threshold t_cut)
     def get_logp(tP_local, t, t_cut, lam):
         if t > t_cut:
             # Probability of the shower to stop F_s
-            return -tf.math.log(1 - tf.math.exp(- (1. - 1e-3)*lam)) + tf.math.log(lam) - tf.math.log(tP_local) - lam * t / tP_local
+            return -tf.math.log(1 - tf.math.exp(- (1. - 1e-3)*lam))\
+                 + tf.math.log(lam) - tf.math.log(tP_local) - lam * t\
+                     / tP_local
 
         else: # For leaves we have t<t_cut
             t_upper = tf.minimum(tP_local,t_cut) #There are cases where tp2 < t_cut
-            log_F_s = -tf.math.log(1 - tf.math.exp(- (1. - 1e-3)*lam)) + tf.math.log(1 - tf.math.exp(-lam * t_upper / tP_local))
+            log_F_s = -tf.math.log(1 - \
+                tf.math.exp(- (1. - 1e-3)*lam)) +\
+                     tf.math.log(1 - tf.math.exp(-lam\
+                         * t_upper / tP_local))
             return log_F_s
 
 
